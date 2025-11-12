@@ -1,6 +1,6 @@
 
 from sdks.novavision.src.helper.package import PackageHelper
-from capsules.Package.src.models.PackageModel import PackageModel, ConfigExecutor, PackageConfigs, OutputDetections, ForegroundDetectionOutputs, ForegroundDetectionResponse, ForegroundDetectionExecutor, OutputImage
+from capsules.ForegroundDetection.src.models.PackageModel import PackageModel, ConfigExecutor, PackageConfigs, OutputDetections, ForegroundDetectionOutputs, ForegroundDetectionResponse, ForegroundDetectionExecutor, OutputImage
 
 
 def build_response(context):
