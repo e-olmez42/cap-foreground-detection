@@ -25,9 +25,9 @@ class ModelLoader:
                 varThreshold=varThreshold,
                 detectShadows=detectShadows
             )
-            model.setNMixtures(10)  # Gauss sayısı
-            model.setShadowThreshold(0.8)  #Gölgelerin katsayısı
-            model.setBackgroundRatio(0.9)  #arka tarafın oranı
+            model.setNMixtures(3)  # Gauss sayısı
+            model.setShadowThreshold(0.7)  #Gölgelerin katsayısı
+            model.setBackgroundRatio(0.8)  #arka tarafın oranı
             model.setVarMin(4 * 4)
             model.setVarMax(75 * 75)
 
@@ -37,6 +37,8 @@ class ModelLoader:
                 dist2Threshold=varThreshold,
                 detectShadows=detectShadows
             )
+            model.setNSamples(20)
+            model.setkNNSamples(2)
 
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
