@@ -99,9 +99,9 @@ class KNN(Config):
     field: Literal["Option"] = "Option"
     class Config:
         title = "K-Nearest Neighbors"
-class MOGtwo(Config):
-    name: Literal["mogTwo"] = "mogTwo"
-    value: Literal["mogTwo"] = "mogTwo"
+class MOG2(Config):
+    name: Literal["MOG2"] = "MOG2"
+    value: Literal["MOG2"] = "MOG2"
     type: Literal["string"] = "string"
     field: Literal["Option"] = "Option"
     class Config:
@@ -109,7 +109,7 @@ class MOGtwo(Config):
 
 class Type(Config):
     name: Literal["type"] = "type"
-    value: Union[MOGtwo, KNN]
+    value: Union[MOG2, KNN]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     restart: Literal[True] = True
