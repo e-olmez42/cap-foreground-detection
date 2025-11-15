@@ -26,7 +26,7 @@ class ForegroundDetection(Capsule):
         return model
 
     def foreground_mask(self, image):
-        mask = self.bg_subtractor.apply(image)
+        mask = self.model.apply(image)
         return mask
 
     def run(self):
