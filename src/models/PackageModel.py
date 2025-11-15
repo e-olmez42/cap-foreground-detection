@@ -92,23 +92,37 @@ class MOGDetectShadows(Config):
     class Config:
         title = "Detect Shadows"
 
-
+class KNN(Config):
+    name: Literal["KNN"] = "KNN"
+    value: Literal["KNN"] = "KNN"
+    type: Literal["string"] = "string"
+    field: Literal["Option"] = "Option"
+    class Config:
+        title = "K-Nearest Neighbors"
 class MOGtwo(Config):
     name: Literal["mogTwo"] = "mogTwo"
     value: Literal["mogTwo"] = "mogTwo"
     type: Literal["string"] = "string"
-    field: Literal["textInput"] = "textInput"
+    field: Literal["Option"] = "Option"
     class Config:
         title = "Adaptive Mixture of Gaussians v2"
 
+class Type(Config):
+    name: Literal["type"] = "type"
+    value: Union[MOGtwo, KNN]
+    type: Literal["object"] = "object"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+    restart: Literal[True] = True
 
+    class Config:
+        title = "Type"
 
 class ForegroundDetectionInputs(Inputs):
     inputImage: InputImage
 
 
 class ForegroundDetectionConfigs(Configs):
-    mogTwo: MOGtwo
+    type: Type
     history: MOGHistory
     varThreshold: MOGVarThreshold
     detectShadows: MOGDetectShadows
