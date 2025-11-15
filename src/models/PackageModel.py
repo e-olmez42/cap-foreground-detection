@@ -89,6 +89,8 @@ class KNNDist2Threshold(Config):
     value: float = Field(default=400.0, ge=1.0, le=5000.0)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
+    class Config:
+        title = "Distance Threshold"
 
 class MOGDetectShadows(Config):
     name: Literal["detectShadows"] = "detectShadows"
@@ -106,6 +108,7 @@ class KNN(Config):
     field: Literal["Option"] = "Option"
     class Config:
         title = "K-Nearest Neighbors"
+        
 class MOG2(Config):
     varThreshold: MOGVarThreshold
     name: Literal["MOG2"] = "MOG2"
