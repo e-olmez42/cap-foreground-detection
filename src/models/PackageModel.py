@@ -84,6 +84,12 @@ class MOGVarThreshold(Config):
     class Config:
         title = "Variance Threshold"
 
+class KNNDist2Threshold(Config):
+    name: Literal["dist2Threshold"] = "dist2Threshold"
+    value: float = Field(default=400.0, ge=1.0, le=5000.0)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
 class MOGDetectShadows(Config):
     name: Literal["detectShadows"] = "detectShadows"
     value: Union[ConfigTrue, ConfigFalse]
@@ -93,6 +99,7 @@ class MOGDetectShadows(Config):
         title = "Detect Shadows"
 
 class KNN(Config):
+    dist2Threshold: KNNDist2Threshold
     name: Literal["KNN"] = "KNN"
     value: Literal["KNN"] = "KNN"
     type: Literal["string"] = "string"
@@ -100,6 +107,7 @@ class KNN(Config):
     class Config:
         title = "K-Nearest Neighbors"
 class MOG2(Config):
+    varThreshold: MOGVarThreshold
     name: Literal["MOG2"] = "MOG2"
     value: Literal["MOG2"] = "MOG2"
     type: Literal["string"] = "string"
@@ -124,7 +132,6 @@ class ForegroundDetectionInputs(Inputs):
 class ForegroundDetectionConfigs(Configs):
     type: Type
     history: MOGHistory
-    varThreshold: MOGVarThreshold
     detectShadows: MOGDetectShadows
 
 
