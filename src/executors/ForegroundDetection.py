@@ -1,6 +1,7 @@
 import os
 import cv2
 import sys
+import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../'))
 
@@ -37,10 +38,9 @@ class ForegroundDetection(Capsule):
             mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
         elif self.model_type == "KNN":
-            raw_mask[raw_mask == 127] = 0
-            _, mask = cv2.threshold(raw_mask, 100, 255, cv2.THRESH_BINARY)
+            _, mask = cv2.threshold(raw_mask, 250, 255, cv2.THRESH_BINARY)
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
             mask = cv2.dilate(mask, kernel, iterations=1)
 
         else:
@@ -49,12 +49,14 @@ class ForegroundDetection(Capsule):
         return mask
 
     def foreground_mask(self, image):
-        return self.model.apply(image, learningRate=-1)
+        return self.model.apply(image)
 
     def run(self):
         img = Image.get_frame(img=self.image, redis_db=self.redis_db)
         frame = img.value
-        fg_mask = self.foreground_mask(frame)
+
+        img_uint8 = frame .astype(np.uint8)
+        fg_mask = self.foreground_mask(img_uint8)
 
         motion_mask = self.clean_mask(fg_mask)
 
