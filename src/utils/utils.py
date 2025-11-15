@@ -36,7 +36,7 @@ class ModelLoader:
             model.setVarMax(5625)                # Max variance (75*75)
 
         elif model_type == "KNN":
-            dist2Threshold = self.application.get_param(self.config, "dist2Threshold", default=400)
+            dist2Threshold = self.application.get_param(self.config, "dist2Threshold")
 
             model = cv2.createBackgroundSubtractorKNN(
                 history=history,
