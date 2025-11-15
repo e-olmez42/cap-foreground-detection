@@ -13,7 +13,7 @@ class ModelLoader:
         self.executor = self.application.get_param(config=config, name="ConfigExecutor")["name"]
 
     def load_model(self):
-        model_type = self.application.get_param(config=self.config, name="Type")
+        model_type = self.application.get_param(config=self.config, name="type")
 
         varThreshold = self.application.get_param(config=self.config, name="varThreshold")
         history = self.application.get_param(config=self.config, name="history")
