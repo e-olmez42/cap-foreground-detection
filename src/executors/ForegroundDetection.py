@@ -19,12 +19,34 @@ class ForegroundDetection(Capsule):
         self.request.model = PackageModel(**(self.request.data))
         self.image = self.request.get_param("inputImage")
         self.model = self.bootstrap.get("model")
+        self.model_type = self.request.get_param("type")
         self.detections = []
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
         model = ModelLoader(config=config).load_model()
         return {"model": model}
+
+    def clean_mask(self, raw_mask):
+
+        if self.model_type == "MOG2":
+            _, mask = cv2.threshold(raw_mask, 250, 255, cv2.THRESH_BINARY)
+
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        elif self.model_type == "KNN":
+            raw_mask[raw_mask == 127] = 0
+            _, mask = cv2.threshold(raw_mask, 100, 255, cv2.THRESH_BINARY)
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+            mask = cv2.dilate(mask, kernel, iterations=1)
+
+        else:
+            mask = raw_mask
+
+        return mask
 
     def foreground_mask(self, image):
         return self.model.apply(image, learningRate=-1)
@@ -34,12 +56,7 @@ class ForegroundDetection(Capsule):
         frame = img.value
         fg_mask = self.foreground_mask(frame)
 
-        # Temizlik işlemleri
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        _, motion_mask = cv2.threshold(fg_mask, 1, 255, cv2.THRESH_BINARY)
-
-        motion_mask = cv2.morphologyEx(motion_mask, cv2.MORPH_OPEN, kernel, iterations=1)
-        motion_mask = cv2.morphologyEx(motion_mask, cv2.MORPH_CLOSE, kernel, iterations=1)
+        motion_mask = self.clean_mask(fg_mask)
 
         contours, _ = cv2.findContours(motion_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
