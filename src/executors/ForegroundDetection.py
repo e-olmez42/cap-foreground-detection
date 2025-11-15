@@ -17,13 +17,14 @@ class ForegroundDetection(Capsule):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**(self.request.data))
+        self.image = self.request.get_param("inputImage")
         self.model = self.bootstrap.get("model")
         self.detections = []
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
         model = ModelLoader(config=config).load_model()
-        return model
+        return {"model":model}
 
     def foreground_mask(self, image):
         mask = self.model.apply(image)
