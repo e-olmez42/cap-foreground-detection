@@ -38,7 +38,8 @@ class ForegroundDetection(Capsule):
             mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
         elif self.model_type == "KNN":
-            _, mask = cv2.threshold(raw_mask, 250, 255, cv2.THRESH_BINARY)
+            raw_mask[raw_mask == 127] = 0
+            _, mask = cv2.threshold(raw_mask, 100, 255, cv2.THRESH_BINARY)
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
             mask = cv2.dilate(mask, kernel, iterations=1)
