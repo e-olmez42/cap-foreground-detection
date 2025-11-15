@@ -105,7 +105,7 @@ class KNN(Config):
     name: Literal["KNN"] = "KNN"
     value: Literal["KNN"] = "KNN"
     type: Literal["string"] = "string"
-    field: Literal["Option"] = "Option"
+    field: Literal["option"] = "option"
     class Config:
         title = "K-Nearest Neighbors"
         
@@ -114,7 +114,7 @@ class MOG2(Config):
     name: Literal["MOG2"] = "MOG2"
     value: Literal["MOG2"] = "MOG2"
     type: Literal["string"] = "string"
-    field: Literal["Option"] = "Option"
+    field: Literal["option"] = "option"
     class Config:
         title = "Adaptive Mixture of Gaussians v2"
 
