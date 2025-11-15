@@ -8,7 +8,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../'))
 from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.capsule import Capsule
 from sdks.novavision.src.helper.executor import Executor
-from capsules.OpenCvDnn.src.utils.utils import ModelLoader
+from capsules.ForegroundDetection.src.utils.utils import ModelLoader
 from capsules.ForegroundDetection.src.utils.response import build_response
 from capsules.ForegroundDetection.src.models.PackageModel import PackageModel
 
