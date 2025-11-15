@@ -8,6 +8,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../'))
 from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.capsule import Capsule
 from sdks.novavision.src.helper.executor import Executor
+from capsules.OpenCvDnn.src.utils.utils import ModelLoader
 from capsules.ForegroundDetection.src.utils.response import build_response
 from capsules.ForegroundDetection.src.models.PackageModel import PackageModel
 
@@ -16,20 +17,13 @@ class ForegroundDetection(Capsule):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**(self.request.data))
-        self.history = self.request.get_param("history")
-        self.varThreshold = self.request.get_param("varThreshold")
-        self.detectShadows = self.request.get_param("detectShadows")
-        self.image = self.request.get_param("inputImage")
-        self.bg_subtractor = cv2.createBackgroundSubtractorMOG2(
-            history=self.history,
-            varThreshold=self.varThreshold,
-            detectShadows=self.detectShadows
-        )
+        self.model = self.bootstrap.get("model")
         self.detections = []
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
-        return {}
+        model = ModelLoader(config=config).load_model()
+        return model
 
     def foreground_mask(self, image):
         mask = self.bg_subtractor.apply(image)
