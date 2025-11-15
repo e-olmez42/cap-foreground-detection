@@ -123,7 +123,6 @@ class Type(Config):
     value: Union[MOG2, KNN]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    restart: Literal[True] = True
 
     class Config:
         title = "Type"
