@@ -14,29 +14,50 @@ class ModelLoader:
     def load_model(self):
         model_type = self.application.get_param(self.config, "type")
 
+        # Common parameters
         history = self.application.get_param(self.config, "history")
         detectShadows = self.application.get_param(self.config, "detectShadows")
 
+        # -----------------------------
+        # MOG2 MODEL
+        # -----------------------------
         if model_type == "MOG2":
-            varThreshold = self.application.get_param(self.config, "varThreshold")
 
+            varThreshold = self.application.get_param(self.config, "varThreshold")
+            nMixtures = self.application.get_param(self.config, "nMixtures")
+            shadowThreshold = self.application.get_param(self.config, "shadowThreshold")
+            backgroundRatio = self.application.get_param(self.config, "backgroundRatio")
+            varMin = self.application.get_param(self.config, "varMin")
+            varMax = self.application.get_param(self.config, "varMax")
+            varThresholdGen = self.application.get_param(self.config, "varThresholdGen")
+            varInit = self.application.get_param(self.config, "varInit")
+            complexityReductionThreshold = self.application.get_param(self.config, "complexityReductionThreshold")
+
+            # Create model
             model = cv2.createBackgroundSubtractorMOG2(
                 history=history,
                 varThreshold=varThreshold,
                 detectShadows=detectShadows
             )
 
-            # -------------------------
-            # Ek parametreler
-            # -------------------------
-            model.setNMixtures(3)               # Gaussian count
-            model.setShadowThreshold(0.7)        # Shadow detection factor
-            model.setBackgroundRatio(0.8)        # BG probability
-            model.setVarMin(16)                  # Min variance
-            model.setVarMax(5625)                # Max variance (75*75)
+            # Set advanced MOG2 parameters
+            model.setNMixtures(nMixtures)
+            model.setShadowThreshold(shadowThreshold)
+            model.setBackgroundRatio(backgroundRatio)
+            model.setVarMin(varMin)
+            model.setVarMax(varMax)
+            model.setVarThresholdGen(varThresholdGen)
+            model.setVarInit(varInit)
+            model.setComplexityReductionThreshold(complexityReductionThreshold)
 
+        # -----------------------------
+        # KNN MODEL
+        # -----------------------------
         elif model_type == "KNN":
+
             dist2Threshold = self.application.get_param(self.config, "dist2Threshold")
+            nSamples = self.application.get_param(self.config, "nSamples")
+            kNNSamples = self.application.get_param(self.config, "kNNSamples")
 
             model = cv2.createBackgroundSubtractorKNN(
                 history=history,
@@ -44,11 +65,8 @@ class ModelLoader:
                 detectShadows=detectShadows
             )
 
-            # -------------------------
-            # KNN parametreleri
-            # -------------------------
-            model.setNSamples(20)
-            model.setkNNSamples(2)
+            model.setNSamples(nSamples)
+            model.setkNNSamples(kNNSamples)
 
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
