@@ -92,6 +92,25 @@ class KNNDist2Threshold(Config):
     class Config:
         title = "Distance Threshold"
 
+class KNNNSamples(Config):
+    name: Literal["nSamples"] = "nSamples"
+    value: int = Field(default=20, ge=1, le=100)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Number of Samples"
+
+
+class KNNkNNSamples(Config):
+    name: Literal["kNNSamples"] = "kNNSamples"
+    value: int = Field(default=2, ge=1, le=20)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "KNN Sample Count"
+
 class MOGDetectShadows(Config):
     name: Literal["detectShadows"] = "detectShadows"
     value: Union[ConfigTrue, ConfigFalse]
@@ -100,23 +119,110 @@ class MOGDetectShadows(Config):
     class Config:
         title = "Detect Shadows"
 
+
+class MOG2NMixtures(Config):
+    name: Literal["nMixtures"] = "nMixtures"
+    value: int = Field(default=3, ge=1, le=10)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Number Gaussian Mixtures"
+
+
+class MOG2ShadowThreshold(Config):
+    name: Literal["shadowThreshold"] = "shadowThreshold"
+    value: float = Field(default=0.7, ge=0.0, le=1.0)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Shadow Threshold"
+
+
+class MOG2BackgroundRatio(Config):
+    name: Literal["backgroundRatio"] = "backgroundRatio"
+    value: float = Field(default=0.8, ge=0.0, le=1.0)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Background Ratio"
+
+
+class MOG2VarMin(Config):
+    name: Literal["varMin"] = "varMin"
+    value: float = Field(default=16.0, ge=1.0, le=10000.0)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Minimum Variance"
+
+
+class MOG2VarThresholdGen(Config):
+    name: Literal["varThresholdGen"] = "varThresholdGen"
+    value: float = Field(default=9.0, ge=0.0, le=1000.0)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Variance Threshold Generation"
+class MOG2VarMax(Config):
+    name: Literal["varMax"] = "varMax"
+    value: float = Field(default=5625.0, ge=1.0, le=20000.0)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Maximum Variance"
+
+class MOG2VarInit(Config):
+    name: Literal["varInit"] = "varInit"
+    value: float = Field(default=15.0, ge=0.0, le=10000.0)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Initial Variance"
+
+
+class MOG2ComplexityReductionThreshold(Config):
+    name: Literal["complexityReductionThreshold"] = "complexityReductionThreshold"
+    value: float = Field(default=0.05, ge=0.0, le=1.0)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Complexity Reduction Threshold"
+
 class KNN(Config):
     dist2Threshold: KNNDist2Threshold
+    nSamples: KNNNSamples
+    kNNSamples: KNNkNNSamples
     name: Literal["KNN"] = "KNN"
     value: Literal["KNN"] = "KNN"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
     class Config:
-        title = "K-Nearest Neighbors"
+        title = "KNN"
         
 class MOG2(Config):
     varThreshold: MOGVarThreshold
+    nMixtures: MOG2NMixtures
+    shadowThreshold: MOG2ShadowThreshold
+    backgroundRatio: MOG2BackgroundRatio
+    varMin: MOG2VarMin
+    varMax: MOG2VarMax
+    varInit: MOG2VarInit
+    complexityReductionThreshold: MOG2ComplexityReductionThreshold
+    varThresholdGen: MOG2VarThresholdGen
     name: Literal["MOG2"] = "MOG2"
     value: Literal["MOG2"] = "MOG2"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
     class Config:
-        title = "Adaptive Mixture of Gaussians v2"
+        title = "MOG2"
 
 class Type(Config):
     name: Literal["type"] = "type"
