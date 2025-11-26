@@ -83,7 +83,7 @@ class ForegroundDetection(Capsule):
 
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < min_contour_area or area>20000:
+            if area < min_contour_area:
                 continue
 
             M = cv2.moments(contour)
