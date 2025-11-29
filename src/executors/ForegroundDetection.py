@@ -22,7 +22,7 @@ class ForegroundDetection(Capsule):
         self.image = self.request.get_param("inputImage")
         self.model_fast = self.bootstrap.get("model_fast")
         self.model_medium = self.bootstrap.get("model_medium")
-        self.min_contour_area =self.bootstrap.get("minContourArea")
+        self.min_contour_area =int(self.bootstrap.get("minContourArea"))
         self.model_type = self.request.get_param("type")
         self.detections = []
 
