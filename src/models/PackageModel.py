@@ -69,7 +69,7 @@ class ConfigFalse(Config):
 
 class LearningRateShort(Config):
     name: Literal["learningRateShort"] = "learningRateShort"
-    value: float = Field(default=0.03, ge=0.001, le=0.1)
+    value: float = Field(default=0.03, ge=0.00001, le=1)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     class Config:
@@ -77,7 +77,7 @@ class LearningRateShort(Config):
 
 class LearningRateLong(Config):
     name: Literal["learningRateLong"] = "learningRateLong"
-    value: float = Field(default=0.0005, ge=0.00001, le=0.005)
+    value: float = Field(default=0.0005, ge=0.00001, le=1)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     class Config:
