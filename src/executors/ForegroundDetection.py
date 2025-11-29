@@ -102,7 +102,7 @@ class ForegroundDetection(Capsule):
                 boundingBox=BoundingBox(left=x, top=y, width=w, height=h),
                 confidence=round(float(average_object_confidence), 2),
                 classId=0,
-                classLabel="moving_foreground",
+                classLabel="foreground",
                 imgUID=self.uID,
                 keyPoints=[]
             )
