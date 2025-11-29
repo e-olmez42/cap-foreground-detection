@@ -4,17 +4,33 @@ from sdks.novavision.src.base.application import Application
 
 
 class ModelLoader:
+    class BackgroundSubtractorWrapper:
+
+        def __init__(self, cv_model, learning_rate):
+            self.model = cv_model
+            self.learning_rate = learning_rate
+
+        def apply(self, image):
+            return self.model.apply(image, learningRate=self.learning_rate)
 
     def __init__(self, config: dict):
         self.config = config
         self.application = Application()
         self.logger = LoggerManager()
-        self.executor = self.application.get_param(config=config, name="ConfigExecutor")["name"]
+        # self.executor = self.application.get_param(config=config, name="ConfigExecutor")["name"]
 
     def load_model(self):
         model_type = self.application.get_param(self.config, "type")
 
-        # Common parameters
+        learning_rate_status = self.config.get("learning_rate")
+        if learning_rate_status == "short":
+            learning_rate = self.application.get_param(self.config, "learningRateShort")
+        elif learning_rate_status == "long":
+            learning_rate = self.application.get_param(self.config, "learningRateLong")
+        else:
+            learning_rate = -1
+
+        # Ortak Parametreler
         history = self.application.get_param(self.config, "history")
         detectShadows = self.application.get_param(self.config, "detectShadows")
 
@@ -33,14 +49,12 @@ class ModelLoader:
             varInit = self.application.get_param(self.config, "varInit")
             complexityReductionThreshold = self.application.get_param(self.config, "complexityReductionThreshold")
 
-            # Create model
             model = cv2.createBackgroundSubtractorMOG2(
                 history=history,
                 varThreshold=varThreshold,
                 detectShadows=detectShadows
             )
 
-            # Set advanced MOG2 parameters
             model.setNMixtures(nMixtures)
             model.setShadowThreshold(shadowThreshold)
             model.setBackgroundRatio(backgroundRatio)
@@ -71,4 +85,4 @@ class ModelLoader:
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
 
-        return model
+        return self.BackgroundSubtractorWrapper(model, learning_rate)
