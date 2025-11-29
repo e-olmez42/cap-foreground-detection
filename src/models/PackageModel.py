@@ -67,10 +67,34 @@ class ConfigFalse(Config):
     class Config:
         title = "Disable"
 
+class LearningRateShort(Config):
+    name: Literal["learningRateShort"] = "learningRateShort"
+    value: float = Field(default=0.03, ge=0.001, le=0.1)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config:
+        title = "Learning Rate (Short/Fast)"
+
+class LearningRateLong(Config):
+    name: Literal["learningRateLong"] = "learningRateLong"
+    value: float = Field(default=0.0005, ge=0.00001, le=0.005)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config:
+        title = "Learning Rate (Long/Slow)"
+
+
+class MinContourArea(Config):
+    name: Literal["minContourArea"] = "minContourArea"
+    value: int = Field(default=800, ge=10, le=5000)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config:
+        title = "Minimum Contour Area (px)"
 
 class MOGHistory(Config):
     name: Literal["history"] = "history"
-    value: int = Field(default=200, ge=1, le=1000)
+    value: int = Field(default=200, ge=1, le=10000)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     class Config:
@@ -200,6 +224,9 @@ class KNN(Config):
     dist2Threshold: KNNDist2Threshold
     nSamples: KNNNSamples
     kNNSamples: KNNkNNSamples
+    learningRateShort: LearningRateShort
+    learningRateLong: LearningRateLong
+    minContourArea: MinContourArea
     name: Literal["KNN"] = "KNN"
     value: Literal["KNN"] = "KNN"
     type: Literal["string"] = "string"
@@ -217,6 +244,9 @@ class MOG2(Config):
     varInit: MOG2VarInit
     complexityReductionThreshold: MOG2ComplexityReductionThreshold
     varThresholdGen: MOG2VarThresholdGen
+    learningRateShort: LearningRateShort
+    learningRateLong: LearningRateLong
+    minContourArea: MinContourArea
     name: Literal["MOG2"] = "MOG2"
     value: Literal["MOG2"] = "MOG2"
     type: Literal["string"] = "string"
