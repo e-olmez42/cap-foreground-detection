@@ -367,7 +367,6 @@ class ConfigExecutor(Config):
     value: Union[ForegroundDetectionExecutor,AODForegroundDetectionExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    restart: Literal[True] = True
 
     class Config:
         title = "Task"
