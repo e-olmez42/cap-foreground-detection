@@ -357,7 +357,7 @@ class AODForegroundDetectionExecutor(Config):
         title = "AOD Foreground Detection"
         json_schema_extra = {
             "target": {
-                "value": 1
+                "value": 0
             }
         }
 
@@ -367,12 +367,10 @@ class ConfigExecutor(Config):
     value: Union[ForegroundDetectionExecutor,AODForegroundDetectionExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+    restart: Literal[True] = True
 
     class Config:
         title = "Task"
-        json_schema_extra = {
-            "target": "value"
-        }
 
 
 class PackageConfigs(Configs):
