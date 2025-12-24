@@ -254,6 +254,23 @@ class MOG2(Config):
     class Config:
         title = "MOG2"
 
+class StaticTime(Config):
+    name: Literal["staticTime"] = "staticTime"
+    value: int = Field(default=5, ge=1, le=60)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config:
+        title = "Static Time"
+
+class SSIM(Config):
+    name: Literal["ssim"] = "ssim"
+    value: Union[ConfigTrue, ConfigFalse]
+    type: Literal["object"] = "object"
+    field: Literal["dropdownlist"] = "dropdownlist"
+
+    class Config:
+        title = "SSIM Calculation"
+
 class Type(Config):
     name: Literal["type"] = "type"
     value: Union[MOG2, KNN]
@@ -278,9 +295,22 @@ class ForegroundDetectionOutputs(Outputs):
     outputDetections: OutputDetections
 
 
+
+class AODForegroundDetectionInputs(Inputs):
+    inputImage: InputImage
+
+class AODForegroundDetectionConfigs(Configs):
+    staticTime :StaticTime
+    ssim:SSIM
+
+
+class AODForegroundDetectionOutputs(Outputs):
+    outputImage: OutputImage
+    outputDetections: OutputDetections
+
 class ForegroundDetectionRequest(Request):
     inputs: Optional[ForegroundDetectionInputs]
-    configs: ForegroundDetectionConfigs
+    configs: AODForegroundDetectionConfigs
 
     class Config:
         json_schema_extra = {
@@ -290,6 +320,18 @@ class ForegroundDetectionRequest(Request):
 
 class ForegroundDetectionResponse(Response):
     outputs: ForegroundDetectionOutputs
+
+class AODForegroundDetectionRequest(Request):
+    inputs: Optional[AODForegroundDetectionInputs]
+    configs: ForegroundDetectionConfigs
+
+    class Config:
+        json_schema_extra = {
+            "target": "configs"
+        }
+
+class AODForegroundDetectionResponse(Response):
+    outputs: AODForegroundDetectionOutputs
 
 
 class ForegroundDetectionExecutor(Config):
@@ -305,11 +347,24 @@ class ForegroundDetectionExecutor(Config):
                 "value": 0
             }
         }
+class AODForegroundDetectionExecutor(Config):
+    name: Literal["AODForegroundDetection"] = "AODForegroundDetection"
+    value: Union[AODForegroundDetectionRequest, AODForegroundDetectionResponse]
+    type: Literal["object"] = "object"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "AOD Foreground Detection"
+        json_schema_extra = {
+            "target": {
+                "value": 1
+            }
+        }
 
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ForegroundDetectionExecutor]
+    value: Union[ForegroundDetectionExecutor,AODForegroundDetectionExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
