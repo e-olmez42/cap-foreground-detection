@@ -310,7 +310,7 @@ class AODForegroundDetectionOutputs(Outputs):
 
 class ForegroundDetectionRequest(Request):
     inputs: Optional[ForegroundDetectionInputs]
-    configs: AODForegroundDetectionConfigs
+    configs: ForegroundDetectionConfigs
 
     class Config:
         json_schema_extra = {
@@ -323,7 +323,7 @@ class ForegroundDetectionResponse(Response):
 
 class AODForegroundDetectionRequest(Request):
     inputs: Optional[AODForegroundDetectionInputs]
-    configs: ForegroundDetectionConfigs
+    configs:AODForegroundDetectionConfigs 
 
     class Config:
         json_schema_extra = {
