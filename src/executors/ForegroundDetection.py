@@ -21,6 +21,7 @@ class ForegroundDetection(Capsule):
         self.request.model = PackageModel(**(self.request.data))
         self.image = self.request.get_param("inputImage")
         self.model = self.bootstrap.get("model")
+        self.threshold = self.request.get_param("threshold")
         self.min_contour_area = self.request.get_param("minContourArea")
         self.model_type = self.request.get_param("type")
         self.detections = []
@@ -32,7 +33,7 @@ class ForegroundDetection(Capsule):
 
     # ------------------------------------------------
     def clean_mask(self, raw_mask):
-        _, mask = cv2.threshold(raw_mask, 100, 255, cv2.THRESH_BINARY)
+        _, mask = cv2.threshold(raw_mask, self.threshold, 255, cv2.THRESH_BINARY)
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
