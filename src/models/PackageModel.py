@@ -203,6 +203,15 @@ class MOG2VarInit(Config):
         title = "Initial Variance"
 
 
+class Threshold(Config):
+    name: Literal["threshold"] = "threshold"
+    value: int = Field(default=30, ge=5, le=255)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Threshold"
+
 class MOG2ComplexityReductionThreshold(Config):
     name: Literal["complexityReductionThreshold"] = "complexityReductionThreshold"
     value: float = Field(default=0.05, ge=0.0, le=1.0)
@@ -213,7 +222,10 @@ class MOG2ComplexityReductionThreshold(Config):
         title = "Complexity Reduction Threshold"
 
 class KNN(Config):
+    history: MOGHistory
+    detectShadows: MOGDetectShadows
     dist2Threshold: KNNDist2Threshold
+    threshold: Threshold
     nSamples: KNNNSamples
     kNNSamples: KNNkNNSamples
     learningRate: LearningRate
@@ -226,6 +238,9 @@ class KNN(Config):
         title = "KNN"
         
 class MOG2(Config):
+    history: MOGHistory
+    detectShadows: MOGDetectShadows
+    threshold: Threshold
     varThreshold: MOGVarThreshold
     nMixtures: MOG2NMixtures
     shadowThreshold: MOG2ShadowThreshold
@@ -244,9 +259,33 @@ class MOG2(Config):
     class Config:
         title = "MOG2"
 
+
+class FrameDifferencing(Config):
+    threshold: Threshold
+    learningRate: LearningRate
+    name: Literal["FrameDifferencing"] = "FrameDifferencing"
+    value:Literal["FrameDifferencing"] = "FrameDifferencing"
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Frame Differencing"
+
+class RunningAverage(Config):
+    threshold: Threshold
+    learningRate: LearningRate
+    name: Literal["RunningAverage"] = "RunningAverage"
+    value: Literal["RunningAverage"] = "RunningAverage"
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Running Average"
+
+
 class Type(Config):
     name: Literal["type"] = "type"
-    value: Union[MOG2, KNN]
+    value: Union[MOG2, KNN, FrameDifferencing, RunningAverage]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
@@ -259,8 +298,6 @@ class ForegroundDetectionInputs(Inputs):
 
 class ForegroundDetectionConfigs(Configs):
     type: Type
-    history: MOGHistory
-    detectShadows: MOGDetectShadows
 
 
 class ForegroundDetectionOutputs(Outputs):
