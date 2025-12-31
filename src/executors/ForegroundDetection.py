@@ -20,8 +20,7 @@ class ForegroundDetection(Capsule):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**(self.request.data))
         self.image = self.request.get_param("inputImage")
-        self.model_fast = self.bootstrap.get("model_fast")
-        self.model_medium = self.bootstrap.get("model_medium")
+        self.model = self.bootstrap.get("model")
         self.min_contour_area = self.request.get_param("minContourArea")
         self.model_type = self.request.get_param("type")
         self.detections = []
@@ -30,16 +29,10 @@ class ForegroundDetection(Capsule):
     def bootstrap(config: dict) -> dict:
         config_fast = config.copy()
         config_fast['learning_rate'] = "short"
-        model_fast = ModelLoader(config=config_fast).load_model()
-
-        config_medium = config.copy()
-        config_medium['learning_rate'] = "long"
-        model_medium = ModelLoader(config=config_medium).load_model()
+        model = ModelLoader(config=config_fast).load_model()
 
         return {
-            "model_fast": model_fast,
-            "model_medium": model_medium,
-            "model_slow": None
+            "model": model,
         }
 
     def clean_mask(self, raw_mask):
@@ -64,14 +57,8 @@ class ForegroundDetection(Capsule):
         return mask
 
     def foreground_mask(self, image):
-        mask_short = self.model_fast.apply(image)
-        mask_medium = self.model_medium.apply(image)
-
-
-        mask_short_binary = self.clean_mask(mask_short)
-        mask_medium_binary = self.clean_mask(mask_medium)
-
-        final_mask = cv2.bitwise_and(mask_medium_binary, mask_short_binary)
+        mask = self.model.apply(image)
+        final_mask = self.clean_mask(mask)
         return final_mask
 
     def run(self):
