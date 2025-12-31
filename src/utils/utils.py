@@ -92,13 +92,13 @@ class ModelLoader:
             )
 
         # ---------------- FRAME DIFF ----------------
-        if model_type == "FRAME_DIFF":
+        if model_type == "FrameDifferencing":
             return self.FrameDifferencingWrapper(
                 self.application.get_param(self.config, "diffThreshold")
             )
 
         # ---------------- RUNNING AVG ----------------
-        if model_type == "RUNNING_AVG":
+        if model_type == "RunningAverage":
             return self.RunningAverageWrapper(
                 self.application.get_param(self.config, "alpha")
             )
