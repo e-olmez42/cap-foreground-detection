@@ -263,6 +263,7 @@ class MOG2(Config):
 class FrameDifferencing(Config):
     threshold: Threshold
     learningRate: LearningRate
+    minContourArea: MinContourArea
     name: Literal["FrameDifferencing"] = "FrameDifferencing"
     value:Literal["FrameDifferencing"] = "FrameDifferencing"
     type: Literal["string"] = "string"
@@ -274,6 +275,7 @@ class FrameDifferencing(Config):
 class RunningAverage(Config):
     threshold: Threshold
     learningRate: LearningRate
+    minContourArea: MinContourArea
     name: Literal["RunningAverage"] = "RunningAverage"
     value: Literal["RunningAverage"] = "RunningAverage"
     type: Literal["string"] = "string"
