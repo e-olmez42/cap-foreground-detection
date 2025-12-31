@@ -21,6 +21,7 @@ class ForegroundDetection(Capsule):
         self.request.model = PackageModel(**(self.request.data))
         self.image = self.request.get_param("inputImage")
         self.model = self.bootstrap.get("model")
+        self.learning_rate = self.bootstrap.get("learning_rate")
         self.min_contour_area = self.request.get_param("minContourArea")
         self.model_type = self.request.get_param("type")
         self.detections = []
@@ -28,11 +29,11 @@ class ForegroundDetection(Capsule):
     @staticmethod
     def bootstrap(config: dict) -> dict:
         config_fast = config.copy()
-        config_fast['learning_rate'] = "short"
-        model = ModelLoader(config=config_fast).load_model()
+        model , learning_rate= ModelLoader(config=config_fast).load_model()
 
         return {
             "model": model,
+            "learning_rate": learning_rate
         }
 
     def clean_mask(self, raw_mask):
@@ -57,7 +58,7 @@ class ForegroundDetection(Capsule):
         return mask
 
     def foreground_mask(self, image):
-        mask = self.model.apply(image)
+        mask = self.model.apply(image,self.learning_rate)
         final_mask = self.clean_mask(mask)
         return final_mask
 
