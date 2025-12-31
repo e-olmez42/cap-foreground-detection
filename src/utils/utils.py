@@ -5,14 +5,14 @@ from sdks.novavision.src.base.application import Application
 
 class ModelLoader:
     class BackgroundSubtractorWrapper:
-
-        def __init__(self, cv_model):
+        def __init__(self, cv_model, learning_rate):
             self.model = cv_model
+            self.learning_rate = learning_rate
 
-
-        def apply(self, image, learning_rate):
-            return self.model.apply(image, learningRate=learning_rate)
-
+        def apply(self, image):
+            return self.model.apply(image, learningRate=self.learning_rate)
+       
+            
     def __init__(self, config: dict):
         self.config = config
         self.application = Application()
