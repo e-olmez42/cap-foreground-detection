@@ -21,9 +21,9 @@ class ModelLoader:
     # Frame Differencing
     # =================================================
     class FrameDifferencingWrapper:
-        def __init__(self, threshold):
+        def __init__(self,  alpha=0.05):
             self.prev_gray = None
-            self.threshold = threshold
+            self.alpha = alpha
 
         def apply(self, image):
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -32,15 +32,14 @@ class ModelLoader:
                 return np.zeros_like(gray)
 
             diff = cv2.absdiff(gray, self.prev_gray)
-            _, mask = cv2.threshold(diff, self.threshold, 255, cv2.THRESH_BINARY)
             self.prev_gray = gray
-            return mask
+            return diff
 
     # =================================================
     # Running Average
     # =================================================
     class RunningAverageWrapper:
-        def __init__(self, alpha):
+        def __init__(self, alpha=0.05):
             self.alpha = alpha
             self.bg = None
 
@@ -54,8 +53,7 @@ class ModelLoader:
             bg_uint8 = cv2.convertScaleAbs(self.bg)
 
             diff = cv2.absdiff(gray, bg_uint8)
-            _, mask = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)
-            return mask
+            return diff
 
     # =================================================
     def __init__(self, config: dict):
@@ -94,13 +92,13 @@ class ModelLoader:
         # ---------------- FRAME DIFF ----------------
         if model_type == "FrameDifferencing":
             return self.FrameDifferencingWrapper(
-                self.application.get_param(self.config, "diffThreshold")
+                self.application.get_param(self.config, "learningRate")
             )
 
         # ---------------- RUNNING AVG ----------------
         if model_type == "RunningAverage":
             return self.RunningAverageWrapper(
-                self.application.get_param(self.config, "alpha")
+                self.application.get_param(self.config, "learningRate")
             )
 
         raise ValueError(f"Unsupported model type: {model_type}")
