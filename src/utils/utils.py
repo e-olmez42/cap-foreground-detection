@@ -21,16 +21,7 @@ class ModelLoader:
 
     def load_model(self):
         model_type = self.application.get_param(self.config, "type")
-
-        learning_rate_status = self.config.get("learning_rate")
-        if learning_rate_status == "short":
-            learning_rate = self.application.get_param(self.config, "learningRateShort")
-        elif learning_rate_status == "long":
-            learning_rate = self.application.get_param(self.config, "learningRateLong")
-        else:
-            learning_rate = -1
-
-        # Ortak Parametreler
+        learning_rate = self.application.get_param(self.config, "learningRate")
         history = self.application.get_param(self.config, "history")
         detectShadows = self.application.get_param(self.config, "detectShadows")
 
