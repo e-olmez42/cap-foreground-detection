@@ -67,21 +67,13 @@ class ConfigFalse(Config):
     class Config:
         title = "Disable"
 
-class LearningRateShort(Config):
-    name: Literal["learningRateShort"] = "learningRateShort"
+class LearningRate(Config):
+    name: Literal["learningRate"] = "learningRate"
     value: float = Field(default=0.03, ge=0.00001, le=1)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     class Config:
-        title = "Learning Rate (Short/Fast)"
-
-class LearningRateLong(Config):
-    name: Literal["learningRateLong"] = "learningRateLong"
-    value: float = Field(default=0.01, ge=0.00001, le=1)
-    type: Literal["number"] = "number"
-    field: Literal["textInput"] = "textInput"
-    class Config:
-        title = "Learning Rate (Long/Slow)"
+        title = "Learning Rate"
 
 
 class MinContourArea(Config):
@@ -224,8 +216,7 @@ class KNN(Config):
     dist2Threshold: KNNDist2Threshold
     nSamples: KNNNSamples
     kNNSamples: KNNkNNSamples
-    learningRateShort: LearningRateShort
-    learningRateLong: LearningRateLong
+    learningRate: LearningRate
     minContourArea: MinContourArea
     name: Literal["KNN"] = "KNN"
     value: Literal["KNN"] = "KNN"
@@ -244,8 +235,7 @@ class MOG2(Config):
     varInit: MOG2VarInit
     complexityReductionThreshold: MOG2ComplexityReductionThreshold
     varThresholdGen: MOG2VarThresholdGen
-    learningRateShort: LearningRateShort
-    learningRateLong: LearningRateLong
+    learningRate: LearningRate
     minContourArea: MinContourArea
     name: Literal["MOG2"] = "MOG2"
     value: Literal["MOG2"] = "MOG2"
