@@ -272,10 +272,48 @@ class FrameDifferencing(Config):
     class Config:
         title = "Frame Differencing"
 
+
+class BGInitDuration(Config):
+    name: Literal["bgInitDuration"] = "bgInitDuration"
+    value: int = Field(default=5, ge=1, le=600)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config:
+        title = "BG Init Time (s)"
+
+class BGModeMean(Config):
+    name: Literal["Mean"] = "Mean"
+    value: Literal["Mean"] = "Mean"
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Mean"
+
+class BGModeMedian(Config):
+    name: Literal["Median"] = "Median"
+    value: Literal["Median"] = "Median"
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Median"
+
+class BGMode(Config):
+    name: Literal["bgMode"] = "bgMode"
+    value: Union[BGModeMean, BGModeMedian]
+    type: Literal["object"] = "object"
+    field: Literal["dropdownlist"] = "dropdownlist"
+    class Config:
+        title = "Background Mode"
+
+
 class RunningAverage(Config):
     threshold: Threshold
     learningRate: LearningRate
     minContourArea: MinContourArea
+    bgInitDuration: BGInitDuration
+    bgMode: BGMode
     name: Literal["RunningAverage"] = "RunningAverage"
     value: Literal["RunningAverage"] = "RunningAverage"
     type: Literal["string"] = "string"
