@@ -262,7 +262,6 @@ class MOG2(Config):
 
 class FrameDifferencing(Config):
     threshold: Threshold
-    learningRate: LearningRate
     minContourArea: MinContourArea
     name: Literal["FrameDifferencing"] = "FrameDifferencing"
     value:Literal["FrameDifferencing"] = "FrameDifferencing"
