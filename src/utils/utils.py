@@ -6,9 +6,6 @@ from sdks.novavision.src.base.logger import LoggerManager
 
 class ModelLoader:
 
-    # =================================================
-    # OpenCV Background Subtractor Wrapper
-    # =================================================
     class BackgroundSubtractorWrapper:
         def __init__(self, cv_model, learning_rate):
             self.model = cv_model
@@ -17,9 +14,6 @@ class ModelLoader:
         def apply(self, image):
             return self.model.apply(image, learningRate=self.learning_rate)
 
-    # =================================================
-    # Frame Differencing
-    # =================================================
     class FrameDifferencingWrapper:
         def __init__(self,  alpha=0.05):
             self.prev_gray = None
@@ -35,37 +29,44 @@ class ModelLoader:
             self.prev_gray = gray
             return diff
 
-    # =================================================
-    # Running Average
-    # =================================================
     class RunningAverageWrapper:
-        def __init__(self, alpha=0.05):
+        def __init__(self, alpha=0.05,  bg_type="mean"):
             self.alpha = alpha
             self.bg = None
+            self.bg_type = bg_type
+            self.frame_buffer = []
+            self.frame_count = 0
+            self.init_frames = 0
 
-        def apply(self, image):
+        def apply(self, image, init_frames):
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            if self.bg is None:
-                self.bg = gray.astype(np.float32)
+
+            if self.frame_count < init_frames:
+                self.frame_buffer.append(gray.astype(np.float32))
+                self.frame_count += 1
                 return np.zeros_like(gray)
 
-            cv2.accumulateWeighted(gray, self.bg, self.alpha)
-            bg_uint8 = cv2.convertScaleAbs(self.bg)
+            if self.bg is None:
+                stack = np.stack(self.frame_buffer)
+                if self.bg_type == "median":
+                    self.bg = np.median(stack, axis=0).astype(np.uint8)
+                else:
+                    self.bg = np.mean(stack, axis=0).astype(np.uint8)
+                self.frame_buffer = None
 
+            cv2.accumulateWeighted(gray, self.bg.astype(np.float32), self.alpha)
+            bg_uint8 = cv2.convertScaleAbs(self.bg)
             diff = cv2.absdiff(gray, bg_uint8)
             return diff
 
-    # =================================================
     def __init__(self, config: dict):
         self.config = config
         self.application = Application()
         self.logger = LoggerManager()
 
-    # =================================================
     def load_model(self):
         model_type = self.application.get_param(self.config, "type")
 
-        # ---------------- MOG2 ----------------
         if model_type == "MOG2":
             model = cv2.createBackgroundSubtractorMOG2(
                 history=self.application.get_param(self.config, "history"),
@@ -77,7 +78,6 @@ class ModelLoader:
                 self.application.get_param(self.config, "learningRate")
             )
 
-        # ---------------- KNN ----------------
         if model_type == "KNN":
             model = cv2.createBackgroundSubtractorKNN(
                 history=self.application.get_param(self.config, "history"),
@@ -89,16 +89,15 @@ class ModelLoader:
                 self.application.get_param(self.config, "learningRate")
             )
 
-        # ---------------- FRAME DIFF ----------------
         if model_type == "FrameDifferencing":
             return self.FrameDifferencingWrapper(
                 self.application.get_param(self.config, "learningRate")
             )
 
-        # ---------------- RUNNING AVG ----------------
         if model_type == "RunningAverage":
             return self.RunningAverageWrapper(
-                self.application.get_param(self.config, "learningRate")
+                self.application.get_param(self.config, "learningRate"),
+                self.application.get_param(self.config, "bgType")
             )
 
         raise ValueError(f"Unsupported model type: {model_type}")
