@@ -26,18 +26,21 @@ class ForegroundDetection(Capsule):
         self.model_type = self.request.get_param("type")
         self.type = self.request.get_param("type")
         if self.type == "RunningAverage":
-            self.fps = self.redis_db.redis_get_flag("injection")
-            self.frame_buffer = self.bootstrap.get("frame_buffer")
             self.frame_count = self.bootstrap.get("frame_count")
-            self.bg_init_duration = self.request.get_param("bgInitDuration")
-            self.bg_type = self.request.get_param("bgType")
+            if not self.frame_count:
+                self.bg_init_duration = self.request.get_param("bgInitDuration")
+                self.fps = self.redis_db.redis_get_flag("injection") or "1.0"
+                self.fps = float(self.fps)
+                print(self.fps)
+                self.bootstrap["frame_count"] =round(self.fps * self.bg_init_duration)
+                self.frame_count = self.bootstrap.get("frame_count")
 
         self.detections = []
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
         model = ModelLoader(config=config).load_model()
-        return {"model": model, "frame_buffer": [],"frame_count": 0}
+        return {"model": model,"frame_count": 0}
 
     # ------------------------------------------------
     def clean_mask(self, raw_mask):
@@ -49,8 +52,11 @@ class ForegroundDetection(Capsule):
 
     # ------------------------------------------------
     def foreground_mask(self, image):
-        raw_mask = self.model.apply(image)
-        return self.clean_mask(raw_mask)
+        if self.model_type == "RunningAverage":
+            fg_mask = self.model.apply(image, self.frame_count)
+        else:
+            fg_mask = self.model.apply(image)
+        return self.clean_mask(fg_mask)
 
     # ------------------------------------------------
     def run(self):
@@ -71,7 +77,6 @@ class ForegroundDetection(Capsule):
                 continue
 
             x, y, w, h = cv2.boundingRect(contour)
-            cv2.rectangle(vis, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
             detection = Detection(
                 boundingBox=BoundingBox(left=x, top=y, width=w, height=h),
