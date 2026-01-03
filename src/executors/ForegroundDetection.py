@@ -24,12 +24,20 @@ class ForegroundDetection(Capsule):
         self.threshold = self.request.get_param("threshold")
         self.min_contour_area = self.request.get_param("minContourArea")
         self.model_type = self.request.get_param("type")
+        self.type = self.request.get_param("type")
+        if self.type == "RunningAverage":
+            self.fps = self.redis_db.redis_get_flag("injection")
+            self.frame_buffer = self.bootstrap.get("frame_buffer")
+            self.frame_count = self.bootstrap.get("frame_count")
+            self.bg_init_duration = self.request.get_param("bgInitDuration")
+            self.bg_type = self.request.get_param("bgType")
+
         self.detections = []
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
         model = ModelLoader(config=config).load_model()
-        return {"model": model}
+        return {"model": model, "frame_buffer": [],"frame_count": 0}
 
     # ------------------------------------------------
     def clean_mask(self, raw_mask):
