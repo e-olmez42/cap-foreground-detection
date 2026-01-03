@@ -15,9 +15,8 @@ class ModelLoader:
             return self.model.apply(image, learningRate=self.learning_rate)
 
     class FrameDifferencingWrapper:
-        def __init__(self,  alpha=0.05):
+        def __init__(self):
             self.prev_gray = None
-            self.alpha = alpha
 
         def apply(self, image):
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -90,9 +89,7 @@ class ModelLoader:
             )
 
         if model_type == "FrameDifferencing":
-            return self.FrameDifferencingWrapper(
-                self.application.get_param(self.config, "learningRate")
-            )
+            return self.FrameDifferencingWrapper()
 
         if model_type == "RunningAverage":
             return self.RunningAverageWrapper(
