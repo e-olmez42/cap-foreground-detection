@@ -53,7 +53,7 @@ class ModelLoader:
                     self.bg = np.mean(stack, axis=0).astype(np.uint8)
                 self.frame_buffer = None
 
-            cv2.accumulateWeighted(gray, self.bg.astype(np.float32), self.alpha)
+            cv2.accumulateWeighted(gray, self.bg, self.alpha)
             bg_uint8 = cv2.convertScaleAbs(self.bg)
             diff = cv2.absdiff(gray, bg_uint8)
             return diff
