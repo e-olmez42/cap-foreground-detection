@@ -48,9 +48,9 @@ class ModelLoader:
             if self.bg is None:
                 stack = np.stack(self.frame_buffer)
                 if self.bg_type == "median":
-                    self.bg = np.median(stack, axis=0).astype(np.uint8)
+                    self.bg = np.median(stack, axis=0).astype(np.float32)
                 else:
-                    self.bg = np.mean(stack, axis=0).astype(np.uint8)
+                    self.bg = np.mean(stack, axis=0).astype(np.float32)
                 self.frame_buffer = None
 
             cv2.accumulateWeighted(gray, self.bg, self.alpha)
