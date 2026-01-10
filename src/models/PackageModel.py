@@ -103,9 +103,11 @@ class ConfigFalse(Config):
 
 class LearningRate(Config):
     """
-    The learning rate controls the adaptation speed of the model.
-    Lower values make the model adapt slowly to changes,
-    while higher values increase responsiveness but may cause instability.
+    Controls the adaptation speed of the background model to changes in the scene.
+    Lower values make the model adapt slowly, which helps prevent false positives
+    in dynamic environments, but may miss quick changes. Higher values make the model
+    adapt faster to new pixel values, allowing it to quickly follow scene changes,
+    but may introduce instability or false foreground detections.
     """
     name: Literal["learningRate"] = "learningRate"
     value: float = Field(default=0.03, ge=0.00001, le=1)
@@ -114,15 +116,17 @@ class LearningRate(Config):
     class Config:
         title = "Learning Rate"
         json_schema_extra = {
-            "shortDescription": "Model Learning Rate"
+            "shortDescription": "Controls how fast the model adapts to changes"
         }
 
 
 class MinContourArea(Config):
     """
-     Minimum area (in pixels) of detected contours.
-     Contours smaller than this value will be ignored.
-     """
+    Sets the minimum area (in pixels) for detected foreground contours.
+    Contours smaller than this threshold are ignored, which helps reduce
+    false detections caused by noise, small shadows, or irrelevant movement.
+    Increase this value in crowded scenes or when ignoring small objects is desired.
+    """
     name: Literal["minContourArea"] = "minContourArea"
     value: int = Field(default=800, ge=10, le=5000)
     type: Literal["number"] = "number"
@@ -130,14 +134,16 @@ class MinContourArea(Config):
     class Config:
         title = "Minimum Contour Area (px)"
         json_schema_extra = {
-            "shortDescription": "Min Contour Size"
+            "shortDescription": "Minimum size of detected objects to be considered foreground"
         }
 
 class MOGHistory(Config):
     """
-      The number of previous frames used for background modeling.
-      Higher values make the background model more stable.
-      """
+    Defines the number of previous frames used to build the background model.
+    A higher history value makes the model more stable and resistant to noise,
+    but slower to react to sudden scene changes. Lower values make the model
+    more sensitive to changes but may cause flickering in the foreground mask.
+    """
     name: Literal["history"] = "history"
     value: int = Field(default=200, ge=1, le=10000)
     type: Literal["number"] = "number"
@@ -145,14 +151,16 @@ class MOGHistory(Config):
     class Config:
         title = "History"
         json_schema_extra = {
-            "shortDescription": "Background History Length"
+            "shortDescription": "Number of past frames considered in background model"
         }
 
 class MOGVarThreshold(Config):
     """
-       Variance threshold for MOG background subtraction.
-       Controls sensitivity to pixel variations; lower values detect smaller changes.
-       """
+    Sets the variance threshold for the MOG background subtraction.
+    This controls how sensitive the model is to changes in pixel values.
+    Lower values detect smaller variations but may increase noise,
+    while higher values make the model less sensitive to minor changes.
+    """
     name: Literal["varThreshold"] = "varThreshold"
     value: float = Field(default=16.0, ge=1.0, le=100.0)
     type: Literal["number"] = "number"
@@ -160,14 +168,17 @@ class MOGVarThreshold(Config):
     class Config:
         title = "Variance Threshold"
         json_schema_extra = {
-            "shortDescription": "Variance Threshold"
+            "shortDescription": "Sensitivity threshold for pixel variance"
         }
 
 class KNNDist2Threshold(Config):
     """
-      Distance threshold for KNN-based background subtraction.
-      Determines whether a pixel matches existing background samples.
-      """
+    Distance threshold for KNN-based background subtraction.
+    Determines if a pixel matches existing background samples. Pixels with
+    distance above this threshold are considered foreground. Lower values
+    make the model stricter (fewer false positives), while higher values
+    increase tolerance but may miss subtle changes.
+    """
     name: Literal["dist2Threshold"] = "dist2Threshold"
     value: float = Field(default=400.0, ge=1.0, le=5000.0)
     type: Literal["number"] = "number"
@@ -175,12 +186,14 @@ class KNNDist2Threshold(Config):
     class Config:
         title = "Distance Threshold"
         json_schema_extra = {
-            "shortDescription": "KNN Distance Threshold"
+            "shortDescription": "Maximum distance to match background pixel"
         }
 
 class KNNNSamples(Config):
     """
-    Number of background samples per pixel used in KNN model.
+    Number of background samples stored for each pixel in the KNN model.
+    More samples improve the robustness of the background model against
+    noise and repeated transient movements, but increase memory usage.
     """
     name: Literal["nSamples"] = "nSamples"
     value: int = Field(default=20, ge=1, le=100)
@@ -190,14 +203,16 @@ class KNNNSamples(Config):
     class Config:
         title = "Number of Samples"
         json_schema_extra = {
-            "shortDescription": "KNN Background Samples"
+            "shortDescription": "Number of stored background samples per pixel"
         }
 
 
 class KNNkNNSamples(Config):
     """
-       Number of nearest neighbors considered in KNN classification.
-       """
+    Number of nearest neighbors used in KNN classification to determine
+    if a pixel belongs to the background. A higher number provides more
+    robust decisions but may smooth out subtle foreground changes.
+    """
     name: Literal["kNNSamples"] = "kNNSamples"
     value: int = Field(default=2, ge=1, le=20)
     type: Literal["number"] = "number"
@@ -206,15 +221,17 @@ class KNNkNNSamples(Config):
     class Config:
         title = "KNN Sample Count"
         json_schema_extra = {
-            "shortDescription": "KNN Nearest Neighbors"
+            "shortDescription": "Number of neighbors considered in KNN"
         }
 
 
 class MOGDetectShadows(Config):
     """
-       Enable or disable shadow detection in background subtraction.
-       Shadows will be marked if enabled.
-       """
+    Option to enable or disable shadow detection in background subtraction.
+    When enabled, pixels identified as shadows are marked differently from
+    the foreground, helping improve object detection accuracy. Useful in
+    outdoor environments with varying lighting conditions.
+    """
     name: Literal["detectShadows"] = "detectShadows"
     value: Union[ConfigTrue, ConfigFalse]
     type: Literal["object"] = "object"
@@ -222,14 +239,16 @@ class MOGDetectShadows(Config):
     class Config:
         title = "Detect Shadows"
         json_schema_extra = {
-            "shortDescription": "Shadow Detection"
+            "shortDescription": "Enable or disable shadow marking in the mask"
         }
 
 
 class MOG2NMixtures(Config):
     """
-       Number of Gaussian mixtures per pixel in MOG2 background model.
-       """
+    Specifies the number of Gaussian mixtures per pixel in the MOG2 background model.
+    More mixtures allow the model to better represent complex background variations,
+    but increase computational cost. Typical values are 3–5 for most applications.
+    """
     name: Literal["nMixtures"] = "nMixtures"
     value: int = Field(default=3, ge=1, le=10)
     type: Literal["number"] = "number"
@@ -244,7 +263,10 @@ class MOG2NMixtures(Config):
 
 class MOG2ShadowThreshold(Config):
     """
-       Threshold for classifying a pixel as shadow in MOG2.
+    Defines the threshold for detecting shadows in the MOG2 background model.
+    Pixels with intensity changes below this value may be classified as shadows.
+    Higher values make the algorithm more sensitive to shadows,
+    while lower values reduce shadow detection.
     """
     name: Literal["shadowThreshold"] = "shadowThreshold"
     value: float = Field(default=0.7, ge=0.0, le=1.0)
@@ -254,14 +276,16 @@ class MOG2ShadowThreshold(Config):
     class Config:
         title = "Shadow Threshold"
         json_schema_extra = {
-            "shortDescription": "Shadow Sensitivity"
+            "shortDescription": "Shadow Detection Sensitivity"
         }
 
 
 class MOG2BackgroundRatio(Config):
     """
-        Ratio of the history that must be satisfied for a pixel to be considered background.
-        """
+    Defines the minimum fraction of history that a pixel must match to be considered background.
+    Higher values make background detection stricter, reducing false positives but potentially
+    missing slowly moving objects.
+    """
     name: Literal["backgroundRatio"] = "backgroundRatio"
     value: float = Field(default=0.8, ge=0.0, le=1.0)
     type: Literal["number"] = "number"
@@ -270,7 +294,7 @@ class MOG2BackgroundRatio(Config):
     class Config:
         title = "Background Ratio"
         json_schema_extra = {
-            "shortDescription": "Background Threshold Ratio"
+            "shortDescription": "Fraction of history to treat pixel as background"
         }
 
 
@@ -287,7 +311,7 @@ class MOG2VarMin(Config):
     class Config:
         title = "Minimum Variance"
         json_schema_extra = {
-            "shortDescription": "Minimum variance for background Gaussians"
+            "shortDescription": "Minimum allowed variance for stable background pixels"
         }
 
 
@@ -304,7 +328,7 @@ class MOG2VarThresholdGen(Config):
     class Config:
         title = "Variance Threshold Generation"
         json_schema_extra = {
-            "shortDescription": "Threshold for generating new variance values"
+            "shortDescription": "Threshold for integrating new pixel variations"
         }
 
 class MOG2VarMax(Config):
@@ -320,7 +344,7 @@ class MOG2VarMax(Config):
     class Config:
         title = "Maximum Variance"
         json_schema_extra = {
-            "shortDescription": "Maximum variance allowed for background Gaussians"
+            "shortDescription": "Maximum variance allowed to avoid false detections"
         }
 
 class MOG2VarInit(Config):
@@ -336,7 +360,7 @@ class MOG2VarInit(Config):
     class Config:
         title = "Initial Variance"
         json_schema_extra = {
-            "shortDescription": "Initial variance for new background Gaussians"
+            "shortDescription": "Starting variance for newly added background Gaussians"
         }
 
 
@@ -353,7 +377,7 @@ class Threshold(Config):
     class Config:
         title = "Threshold"
         json_schema_extra = {
-            "shortDescription": "Pixel intensity threshold for foreground mask"
+            "shortDescription": "Intensity threshold for detecting foreground pixels"
         }
 
 class MOG2ComplexityReductionThreshold(Config):
@@ -369,7 +393,7 @@ class MOG2ComplexityReductionThreshold(Config):
     class Config:
         title = "Complexity Reduction Threshold"
         json_schema_extra = {
-            "shortDescription": "Threshold for removing low-weight Gaussians"
+            "shortDescription": "Threshold to remove insignificant Gaussians and reduce computation"
         }
 
 class KNN(Config):
