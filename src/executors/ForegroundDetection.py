@@ -1,44 +1,101 @@
-
 import os
 import cv2
 import sys
+import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../'))
 
 from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.capsule import Capsule
 from sdks.novavision.src.helper.executor import Executor
-from capsules.ForegroundDetection.src.utils.utils import ModelLoader
 from capsules.ForegroundDetection.src.utils.response import build_response
+from sdks.novavision.src.base.model import Detection, BoundingBox
 from capsules.ForegroundDetection.src.models.PackageModel import PackageModel
+from capsules.ForegroundDetection.src.utils.utils import ModelLoader
 
 
 class ForegroundDetection(Capsule):
+
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**(self.request.data))
         self.image = self.request.get_param("inputImage")
         self.model = self.bootstrap.get("model")
+        self.threshold = self.request.get_param("threshold")
+        self.min_contour_area = self.request.get_param("minContourArea")
+        self.model_type = self.request.get_param("type")
+        self.type = self.request.get_param("type")
+        if self.type == "RunningAverage":
+            self.frame_count = self.bootstrap.get("frame_count")
+            if not self.frame_count:
+                self.bg_init_duration = self.request.get_param("bgInitDuration")
+                self.fps = self.redis_db.redis_get_flag("injection") or "1.0"
+                self.fps = float(self.fps)
+                print(self.fps)
+                self.bootstrap["frame_count"] =round(self.fps * self.bg_init_duration)
+                self.frame_count = self.bootstrap.get("frame_count")
+
         self.detections = []
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
         model = ModelLoader(config=config).load_model()
-        return {"model":model}
+        return {"model": model,"frame_count": 0}
 
-    def foreground_mask(self, image):
-        mask = self.model.apply(image)
+    # ------------------------------------------------
+    def clean_mask(self, raw_mask):
+        _, mask = cv2.threshold(raw_mask, self.threshold, 255, cv2.THRESH_BINARY)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
         return mask
 
+    # ------------------------------------------------
+    def foreground_mask(self, image):
+        if self.model_type == "RunningAverage":
+            fg_mask = self.model.apply(image, self.frame_count)
+        else:
+            fg_mask = self.model.apply(image)
+        return self.clean_mask(fg_mask)
+
+    # ------------------------------------------------
     def run(self):
         img = Image.get_frame(img=self.image, redis_db=self.redis_db)
-        fg_mask = self.foreground_mask(img.value)
-        fg_color = cv2.cvtColor(fg_mask, cv2.COLOR_GRAY2BGR)
-        img.value = fg_color
-        self.image = Image.set_frame(img=img, package_uID=self.uID, redis_db=self.redis_db)
-        packageModel = build_response(context=self)
-        return packageModel
+        frame = img.value.astype(np.uint8)
+
+        fg_mask = self.foreground_mask(frame)
+        contours, _ = cv2.findContours(
+            fg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+
+        self.detections = []
+        vis = cv2.cvtColor(fg_mask, cv2.COLOR_GRAY2BGR)
+
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area < self.min_contour_area:
+                continue
+
+            x, y, w, h = cv2.boundingRect(contour)
+
+            detection = Detection(
+                boundingBox=BoundingBox(left=x, top=y, width=w, height=h),
+                confidence=1.0,
+                classId=0,
+                classLabel="foreground",
+                imgUID=self.uID,
+                keyPoints=[]
+            )
+            self.detections.append(detection)
+
+        img.value = vis
+        self.image = Image.set_frame(
+            img=img, package_uID=self.uID, redis_db=self.redis_db
+        )
+
+        return build_response(context=self)
 
 
-if "__main__" == __name__:
+if __name__ == "__main__":
     Executor(sys.argv[1]).run()
